@@ -1,0 +1,72 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+
+        "AppServicePlan": {
+            "type": "string",
+            "metadata": {
+                "description": "Enter Service Plan"
+            }
+        },
+
+        "WebAppName": {
+            "type": "string",
+            "metadata": {
+                "description": "Enter Web App Name"
+            }
+        },
+
+        "sku": {
+            "type": "string",
+            "metadata": {
+                "description": "Provide SKU value from below"
+            },
+
+            "allowedValues": [
+                "F1",
+                "B1"
+            ]
+        }
+    },
+    "variables": {
+        // "webapp-name": "[concat('devopsmela',uniqueString(resourceGroup().id))]"
+    },
+    "resources": [
+          {
+            "name": "[parameters('AppServicePlan')]",
+            "type": "Microsoft.Web/serverfarms",
+            "apiVersion": "2020-12-01",
+            "location": "[resourceGroup().location]",
+            "sku": {
+                "name": "[parameters('sku')]",
+                "capacity": 1
+            },
+            "tags": {
+                "displayName": "[parameters('AppServicePlan')]"
+            },
+            "properties": {
+                "name": "[parameters('AppServicePlan')]"
+            }
+          },
+
+          {
+            "name": "[parameters('WebAppName')]",
+            "type": "Microsoft.Web/sites",
+            "apiVersion": "2020-12-01",
+            "location": "[resourceGroup().location]",
+            "tags": {
+                "displayName": "[parameters('WebAppName')]"
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/serverfarms', parameters('AppServicePlan'))]"
+            ],
+            "properties": {
+                "name": "[parameters('WebAppName')]",
+                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('AppServicePlan'))]"
+            }
+          }
+
+    ],
+    "outputs": {}
+}
